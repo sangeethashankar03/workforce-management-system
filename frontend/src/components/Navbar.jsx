@@ -26,6 +26,7 @@ export default function Navbar() {
         <Link to="/shifts">Shifts</Link>
         <Link to="/attendance">Attendance</Link>
         <Link to="/leaves">Leave Requests</Link>
+        <Link to="/holidays">Holidays</Link>
         <span className="navbar-user">
           {user.name} ({user.role})
         </span>

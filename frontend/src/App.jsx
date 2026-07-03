@@ -10,6 +10,7 @@ import Departments from "./pages/Departments";
 import Shifts from "./pages/Shifts";
 import Attendance from "./pages/Attendance";
 import Leaves from "./pages/Leaves";
+import Holidays from "./pages/Holidays";
 import "./App.css";
 
 function AppRoutes() {
@@ -68,6 +69,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Leaves />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/holidays"
+          element={
+            <ProtectedRoute>
+              <Holidays />
             </ProtectedRoute>
           }
         />
