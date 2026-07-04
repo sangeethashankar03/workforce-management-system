@@ -23,13 +23,13 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "manager", "employee"],
-      default: "employee",
+      enum: ["store_manager", "training_manager", "crew"],
+      default: "crew",
     },
-    department: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Department",
-      default: null,
+    level: {
+      type: String,
+      enum: ["Level 1", "Level 2", "N/A"],
+      default: "Level 1",
     },
     position: { type: String, default: "" },
     phone: { type: String, default: "" },
