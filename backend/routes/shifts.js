@@ -8,10 +8,9 @@ const router = express.Router();
 
 router.get("/", protect, async (req, res) => {
   try {
-    const filter = req.user.role === "employee" ? { employee: req.user._id } : {};
+    const filter = req.user.role === "crew" ? { employee: req.user._id } : {};
     const shifts = await Shift.find(filter)
-      .populate("employee", "name email")
-      .populate("createdBy", "name")
+      .populate("employee", "name role level")
       .sort({ date: 1 });
     res.status(200).json(shifts);
   } catch (error) {
@@ -22,7 +21,7 @@ router.get("/", protect, async (req, res) => {
 router.post(
   "/",
   protect,
-  authorize("admin", "manager"),
+  authorize("store_manager"),
   [
     body("employee").notEmpty().withMessage("Employee is required"),
     body("date").notEmpty().withMessage("Date is required"),
@@ -54,7 +53,7 @@ router.post(
 router.put(
   "/:id",
   protect,
-  authorize("admin", "manager"),
+  authorize("store_manager"),
   [
     body("date").optional().notEmpty().withMessage("Date cannot be empty"),
     body("startTime").optional().notEmpty().withMessage("Start time cannot be empty"),
@@ -87,7 +86,7 @@ router.put(
   }
 );
 
-router.delete("/:id", protect, authorize("admin", "manager"), async (req, res) => {
+router.delete("/:id", protect, authorize("store_manager"), async (req, res) => {
   try {
     const shift = await Shift.findById(req.params.id);
     if (!shift) {

@@ -1,6 +1,6 @@
 const express = require("express");
 const Attendance = require("../models/Attendance");
-const { protect, authorise} = require("../middleware/auth");
+const { protect, authorize} = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-router.post("/clock-in", protect, authorise("store_manager", "training_manager"), async (req, res) => {
+router.post("/clock-in", protect, authorize("store_manager", "training_manager"), async (req, res) => {
   try {
     const { employeeId } = req.body;
     if (!employeeId) return res.status(400).json({ message: "Employee ID is required" });
@@ -47,7 +47,7 @@ router.post("/clock-in", protect, authorise("store_manager", "training_manager")
   }
 });
 
-router.put("/clock-out", protect, authorise("store_manager", "training_manager"), async (req, res) => {
+router.put("/clock-out", protect, authorize("store_manager", "training_manager"), async (req, res) => {
   try {
     const { employeeId } = req.body;
     if (!employeeId) return res.status(400).json({ message: "Employee ID is required" });

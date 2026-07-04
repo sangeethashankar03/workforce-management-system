@@ -7,7 +7,7 @@ const { sanitizeText } = require("../middleware/sanitize");
 
 const router = express.Router();
 
-router.get("/", protect, authorize("store_manager", "training_manager"), async (req, res) => {
+router.get("/", protect, async (req, res) => {
   try {
     const employees = await User.find().select("-password");
     res.status(200).json(employees);
@@ -96,6 +96,11 @@ router.put(
       const employee = await User.findById(req.params.id);
       if (!employee) {
         return res.status(404).json({ message: "Employee not found" });
+      }
+
+      if (req.body.password && req.body.password.length >= 6) {
+        const salt = await bcrypt.genSalt(10);
+        employee.password = await bcrypt.hash(req.body.password, salt);
       }
 
       if (name !== undefined) employee.name = sanitizeText(name);
