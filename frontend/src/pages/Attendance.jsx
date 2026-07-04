@@ -4,26 +4,28 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Attendance() {
   const { user } = useAuth();
-  const [records, setRecords] = useState([]);
-  const [activeSession, setActiveSession] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState("");
   const [message, setMessage] = useState("");
 
   const loadRecords = async () => {
     const res = await api.get("/attendance");
     setRecords(res.data);
-    setActiveSession(
-      res.data.find((r) => r.status === "active" && String(r.employee?._id) === String(user.id || user._id)) || null
-    );
   };
 
   useEffect(() => {
     loadRecords();
+     if (user.role === "store_manager" || user.role === "training_manager") {
+    api.get("/employees").then((res) => setEmployees(res.data));
+     }
   }, []);
 
   const handleClockIn = async () => {
     setMessage("");
+    if (!selectedEmployee) return setMessage("Please select a crew member.");
     try {
-      await api.post("/attendance/clock-in");
+      await api.post("/attendance/clock-in", { employeeId: selectedEmployee });
+      setSelectedEmployee("");
       loadRecords();
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to clock in.");
@@ -32,8 +34,10 @@ export default function Attendance() {
 
   const handleClockOut = async () => {
     setMessage("");
+    if (!selectedEmployee) return setMessage("Please select a crew member.");
     try {
-      await api.put("/attendance/clock-out");
+      await api.put("/attendance/clock-out", { employeeId: selectedEmployee });
+      setSelectedEmployee("");
       loadRecords();
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to clock out.");
@@ -44,21 +48,29 @@ export default function Attendance() {
     <div className="page">
       <h1>Attendance</h1>
       {message && <div className="info-message">{message}</div>}
-      <div className="card-form">
-        <h3>Your Clock In / Out</h3>
-        {activeSession ? (
-          <>
-            <p>You are currently clocked in since {new Date(activeSession.clockIn).toLocaleTimeString()}.</p>
-            <button className="btn btn-primary" onClick={handleClockOut}>Clock Out</button>
-          </>
-        ) : (
-          <button className="btn btn-primary" onClick={handleClockIn}>Clock In</button>
-        )}
-      </div>
+      {(user.role === "store_manager" || user.role === "training_manager") && (
+  <div className="card-form">
+    <h3>Clock In / Out Crew Member</h3>
+    {message && <div className="info-message">{message}</div>}
+    <div className="form-row">
+      <select value={selectedEmployee} onChange={(e) => setSelectedEmployee(e.target.value)}>
+        <option value="">Select Crew Member</option>
+        {employees.filter(e => e.role === "crew").map((emp) => (
+          <option key={emp._id} value={emp._id}>{emp.name} ({emp.level})</option>
+        ))}
+      </select>
+    </div>
+    <div className="form-actions">
+      <button className="btn btn-primary" onClick={handleClockIn}>Clock In</button>
+      <button className="btn btn-secondary" onClick={handleClockOut}>Clock Out</button>
+    </div>
+  </div>
+)}
+
       <table className="data-table">
         <thead>
           <tr>
-            {(user.role === "admin" || user.role === "manager") && <th>Employee</th>}
+            {(user.role === "store_manager" || user.role === "training_manager") && <th>Employee</th>}
             <th>Clock In</th>
             <th>Clock Out</th>
             <th>Hours Worked</th>
@@ -68,11 +80,18 @@ export default function Attendance() {
         <tbody>
           {records.map((r) => (
             <tr key={r._id}>
-              {(user.role === "admin" || user.role === "manager") && <td>{r.employee?.name}</td>}
+              {(user.role === "store_manager" || user.role === "training_manager") && <td>{r.employee?.name}</td>}
               <td>{new Date(r.clockIn).toLocaleString()}</td>
               <td>{r.clockOut ? new Date(r.clockOut).toLocaleString() : "-"}</td>
-              <td>{r.hoursWorked || "-"}</td>
-              <td>{r.status}</td>
+              <td>{r.hoursWorked ? (() => {
+                const totalSeconds = Math.round(r.hoursWorked * 3600);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                return `${hours}h ${minutes}m ${seconds}s`;
+                })() : "-"}
+            </td>
+            <td>{r.status}</td>
             </tr>
           ))}
         </tbody>
