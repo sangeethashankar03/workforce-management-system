@@ -6,27 +6,21 @@ const emptyForm = {
   name: "",
   email: "",
   password: "",
-  role: "employee",
-  department: "",
-  position: "",
+  role: "crew",
+  level: "Level 1",
   phone: "",
 };
 
 export default function Employees() {
   const { user } = useAuth();
   const [employees, setEmployees] = useState([]);
-  const [departments, setDepartments] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState("");
 
   const loadData = async () => {
-    const [empRes, deptRes] = await Promise.all([
-      api.get("/employees"),
-      api.get("/departments"),
-    ]);
-    setEmployees(empRes.data);
-    setDepartments(deptRes.data);
+    const res = await api.get("/employees");
+     setEmployees(res.data);   
   };
 
   useEffect(() => {
@@ -66,8 +60,7 @@ export default function Employees() {
       email: emp.email,
       password: "",
       role: emp.role,
-      department: emp.department?._id || "",
-      position: emp.position || "",
+      level: emp.level || "Level 1",
       phone: emp.phone || "",
     });
     setEditingId(emp._id);
@@ -83,7 +76,7 @@ export default function Employees() {
     <div className="page">
       <h1>Employee Management</h1>
 
-      {user.role === "admin" && (
+      {user.role === "store_manager" && (
         <form className="card-form" onSubmit={handleSubmit}>
           <h3>{editingId ? "Edit Employee" : "Add New Employee"}</h3>
           {message && <div className="info-message">{message}</div>}
@@ -117,31 +110,19 @@ export default function Employees() {
               />
             )}
             <select name="role" value={form.role} onChange={handleChange}>
-              <option value="employee">Employee</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
+              <option value="crew">Crew Member</option>
+              <option value="training_manager">Training Manager</option>
+              <option value="store_manager">Store Manager</option>
             </select>
           </div>
-          <div className="form-row">
-            <select
-              name="department"
-              value={form.department}
-              onChange={handleChange}
-            >
-              <option value="">No Department</option>
-              {departments.map((d) => (
-                <option key={d._id} value={d._id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
-            <input
-              name="position"
-              placeholder="Position / Title"
-              value={form.position}
-              onChange={handleChange}
-            />
-          </div>
+          {form.role === "crew" && (
+            <div className="form-row">
+                <select name="level" value={form.level} onChange={handleChange}>
+                    <option value="Level 1">Level 1</option>
+                    <option value="Level 2">Level 2</option>
+                    </select>
+            </div>
+)}
           <div className="form-row">
             <input
               name="phone"
@@ -173,10 +154,9 @@ export default function Employees() {
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
-            <th>Department</th>
-            <th>Position</th>
+            <th>Level</th>
             <th>Status</th>
-            {user.role === "admin" && <th>Actions</th>}
+            {user.role === "store_manager" && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -185,10 +165,9 @@ export default function Employees() {
               <td>{emp.name}</td>
               <td>{emp.email}</td>
               <td>{emp.role}</td>
-              <td>{emp.department?.name || "-"}</td>
-              <td>{emp.position || "-"}</td>
+              <td>{emp.level || "-"}</td>
               <td>{emp.isActive ? "Active" : "Inactive"}</td>
-              {user.role === "admin" && (
+              {user.role === "store_manager" && (
                 <td>
                   <button
                     className="btn btn-small"
