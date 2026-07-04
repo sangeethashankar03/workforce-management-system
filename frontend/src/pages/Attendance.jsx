@@ -7,6 +7,7 @@ export default function Attendance() {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [message, setMessage] = useState("");
+  const [records, setRecords] = useState([]);
 
   const loadRecords = async () => {
     const res = await api.get("/attendance");
@@ -29,6 +30,7 @@ export default function Attendance() {
       loadRecords();
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to clock in.");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -41,13 +43,13 @@ export default function Attendance() {
       loadRecords();
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to clock out.");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
   return (
     <div className="page">
       <h1>Attendance</h1>
-      {message && <div className="info-message">{message}</div>}
       {(user.role === "store_manager" || user.role === "training_manager") && (
   <div className="card-form">
     <h3>Clock In / Out Crew Member</h3>
