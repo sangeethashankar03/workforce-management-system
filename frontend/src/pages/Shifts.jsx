@@ -87,13 +87,14 @@ export default function Shifts() {
       setWeekForms({});
       loadShifts();
       setMessage("Rota saved successfully.");
+      setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to save rota.");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Remove this shift?")) return;
     await api.delete(`/shifts/${id}`);
     loadShifts();
   };
@@ -133,7 +134,11 @@ export default function Shifts() {
                 <tr key={emp._id} style={String(emp._id) === String(user.id || user._id) ? { backgroundColor: "#ede9fe" } : {}}>
                   <td>
                     <strong>{emp.name}</strong><br />
-                    <small>{emp.role === "training_manager" ? "Training Manager" : `Crew - ${emp.level}`}</small>
+                    <small>
+                      {emp.role === "store_manager" ? "Store Manager" :
+                       emp.role === "training_manager" ? "Training Manager" :
+                       `Crew (${emp.level})`}
+                    </small>
                   </td>
                   {weekDates.map((date, dayIndex) => {
                     const existingShift = shifts.find((s) =>
@@ -147,13 +152,19 @@ export default function Shifts() {
                     }
                     const formKey = `${emp._id}-${dayIndex}`;
                     const formVal = weekForms[formKey] || {};
+                    if (!existingShift && formVal.startTime && formVal.endTime) {
+                      const [sh, sm] = formVal.startTime.split(":").map(Number);
+                      const [eh, em] = formVal.endTime.split(":").map(Number);
+                      const diff = (eh * 60 + em) - (sh * 60 + sm);
+                      if (diff > 0) totalMinutes += diff;
+                    }
                     return (
                       <td key={dayIndex} style={{ minWidth: "120px" }}>
                         {existingShift ? (
                           <div>
                             <div>{existingShift.startTime} - {existingShift.endTime}</div>
                             {canManage && (
-                              <button className="btn btn-small btn-danger" onClick={() => handleDelete(existingShift._id)}>Remove</button>
+                              <button className="btn btn-small" onClick={() => handleDelete(existingShift._id)}>Edit</button>
                             )}
                           </div>
                         ) : canManage ? (
