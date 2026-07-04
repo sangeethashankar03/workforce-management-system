@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get("/", protect, async (req, res) => {
   try {
-    const filter = req.user.role === "employee" ? { employee: req.user._id } : {};
+    const filter = req.user.role === "crew" ? { employee: req.user._id } : {};
     const leaves = await LeaveRequest.find(filter)
       .populate("employee", "name email")
       .populate("reviewedBy", "name")
@@ -27,6 +27,7 @@ router.post(
     body("startDate").notEmpty().withMessage("Start date is required"),
     body("endDate").notEmpty().withMessage("End date is required"),
     body("reason").trim().notEmpty().withMessage("Reason is required"),
+    body("leaveType").trim().notEmpty().withMessage("Leave type is required"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -39,6 +40,7 @@ router.post(
         employee: req.user._id,
         startDate: req.body.startDate,
         endDate: req.body.endDate,
+        leaveType: req.body.leaveType,
         reason: sanitizeText(req.body.reason),
       });
       res.status(201).json(leave);
@@ -48,7 +50,7 @@ router.post(
   }
 );
 
-router.put("/:id/review", protect, authorize("admin", "manager"), async (req, res) => {
+router.put("/:id/review", protect, authorize("store_manager"), async (req, res) => {
   try {
     const { status } = req.body;
     if (!["approved", "rejected"].includes(status)) {
