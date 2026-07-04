@@ -7,9 +7,9 @@ const { sanitizeText } = require("../middleware/sanitize");
 
 const router = express.Router();
 
-router.get("/", protect, authorize("admin", "manager"), async (req, res) => {
+router.get("/", protect, authorize("store_manager", "training_manager"), async (req, res) => {
   try {
-    const employees = await User.find().populate("department", "name").select("-password");
+    const employees = await User.find().select("-password");
     res.status(200).json(employees);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch employees", error: error.message });
@@ -18,11 +18,11 @@ router.get("/", protect, authorize("admin", "manager"), async (req, res) => {
 
 router.get("/:id", protect, async (req, res) => {
   try {
-    if (req.user.role === "employee" && req.user._id.toString() !== req.params.id) {
+    if (req.user.role === "crew" && req.user._id.toString() !== req.params.id) {
       return res.status(403).json({ message: "You can only view your own profile" });
     }
 
-    const employee = await User.findById(req.params.id).populate("department", "name").select("-password");
+    const employee = await User.findById(req.params.id).select("-password");
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
@@ -35,7 +35,7 @@ router.get("/:id", protect, async (req, res) => {
 router.post(
   "/",
   protect,
-  authorize("admin"),
+  authorize("store_manager"),
   [
     body("name").trim().notEmpty().withMessage("Name is required"),
     body("email").isEmail().withMessage("Valid email is required"),
@@ -48,7 +48,7 @@ router.post(
     }
 
     try {
-      const { name, email, password, role, department, position, phone } = req.body;
+      const { name, email, password, role, level, phone } = req.body;
 
       const existing = await User.findOne({ email });
       if (existing) {
@@ -62,9 +62,8 @@ router.post(
         name: sanitizeText(name),
         email,
         password: hashedPassword,
-        role: role || "employee",
-        department: department || null,
-        position: sanitizeText(position || ""),
+        role: role || "crew",
+        level: level || "Level 1",
         phone: sanitizeText(phone || ""),
       });
 
@@ -79,11 +78,11 @@ router.post(
 router.put(
   "/:id",
   protect,
-  authorize("admin"),
+  authorize("store_manager"),
   [
     body("name").optional().trim().notEmpty().withMessage("Name cannot be empty"),
     body("email").optional().isEmail().withMessage("Valid email is required"),
-    body("role").optional().isIn(["admin", "manager", "employee"]).withMessage("Invalid role"),
+    body("role").optional().isIn(["store_manager", "training_manager", "crew"]).withMessage("Invalid role"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -92,7 +91,7 @@ router.put(
     }
 
     try {
-      const { name, email, role, department, position, phone, isActive, leaveBalance } = req.body;
+      const { name, email, role, level, phone, isActive, leaveBalance } = req.body;
 
       const employee = await User.findById(req.params.id);
       if (!employee) {
@@ -101,9 +100,8 @@ router.put(
 
       if (name !== undefined) employee.name = sanitizeText(name);
       if (email !== undefined) employee.email = email;
-      if (role !== undefined) employee.role = role;
-      if (department !== undefined) employee.department = department;
-      if (position !== undefined) employee.position = sanitizeText(position);
+      if (role !== undefined ) employee.role = role;
+      if (level !== undefined && employee.role === "crew") employee.level = level;
       if (phone !== undefined) employee.phone = sanitizeText(phone);
       if (isActive !== undefined) employee.isActive = isActive;
       if (leaveBalance !== undefined) employee.leaveBalance = leaveBalance;
@@ -118,7 +116,7 @@ router.put(
   }
 );
 
-router.delete("/:id", protect, authorize("admin"), async (req, res) => {
+router.delete("/:id", protect, authorize("store_manager"), async (req, res) => {
   try {
     const employee = await User.findById(req.params.id);
     if (!employee) {
