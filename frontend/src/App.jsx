@@ -3,10 +3,8 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Employees from "./pages/Employees";
-import Departments from "./pages/Departments";
 import Shifts from "./pages/Shifts";
 import Attendance from "./pages/Attendance";
 import Leaves from "./pages/Leaves";
@@ -23,7 +21,6 @@ function AppRoutes() {
       <Navbar />
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
         <Route
           path="/dashboard"
           element={
@@ -35,16 +32,9 @@ function AppRoutes() {
         <Route
           path="/employees"
           element={
-            <ProtectedRoute roles={["admin", "manager"]}>
+            <ProtectedRoute roles={["store_manager", "training_manager"
+            ]}>
               <Employees />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/departments"
-          element={
-            <ProtectedRoute roles={["admin"]}>
-              <Departments />
             </ProtectedRoute>
           }
         />
@@ -75,7 +65,7 @@ function AppRoutes() {
         <Route
           path="/holidays"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={["store_manager"]}>
               <Holidays />
             </ProtectedRoute>
           }
