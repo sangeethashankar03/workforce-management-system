@@ -111,6 +111,7 @@ export default function Shifts() {
       </div>
 
       {message && <div className="info-message">{message}</div>}
+
       <div style={{ overflowX: "auto" }}>
         <table className="data-table">
           <thead>
