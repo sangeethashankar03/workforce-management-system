@@ -5,9 +5,9 @@ import { useAuth } from "../context/AuthContext";
 export default function Leaves() {
   const { user } = useAuth();
   const [leaves, setLeaves] = useState([]);
-  const [form, setForm] = useState({ startDate: "", endDate: "", reason: "" });
+  const [form, setForm] = useState({ startDate: "", endDate: "", leaveType: "", reason: "" });
   const [message, setMessage] = useState("");
-  const canReview = user.role === "admin" || user.role === "manager";
+  const canReview = user.role === "store_manager";
 
   const loadLeaves = async () => {
     const res = await api.get("/leaves");
@@ -23,7 +23,7 @@ export default function Leaves() {
     setMessage("");
     try {
       await api.post("/leaves", form);
-      setForm({ startDate: "", endDate: "", reason: "" });
+      setForm({ startDate: "", endDate: "", leaveType: "", reason: "" });
       loadLeaves();
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to submit leave request.");
@@ -46,6 +46,12 @@ export default function Leaves() {
             <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} required />
             <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} required />
           </div>
+          <select value={form.leaveType} onChange={(e) => setForm({ ...form, leaveType: e.target.value })} required>
+            <option value="">Select Leave Type</option>
+            <option value="Sick Leave">Sick Leave</option>
+            <option value="Annual Leave">Annual Leave</option>
+            <option value="Emergency Leave">Emergency Leave</option>
+          </select>
           <input placeholder="Reason for leave" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} required />
           <div className="form-actions">
             <button type="submit" className="btn btn-primary">Submit Request</button>
@@ -58,6 +64,7 @@ export default function Leaves() {
             {canReview && <th>Employee</th>}
             <th>Start Date</th>
             <th>End Date</th>
+            <th>Leave Type</th>
             <th>Reason</th>
             <th>Status</th>
             {canReview && <th>Actions</th>}
@@ -69,6 +76,7 @@ export default function Leaves() {
               {canReview && <td>{l.employee?.name}</td>}
               <td>{new Date(l.startDate).toLocaleDateString()}</td>
               <td>{new Date(l.endDate).toLocaleDateString()}</td>
+              <td>{l.leaveType}</td>
               <td>{l.reason}</td>
               <td>{l.status}</td>
               {canReview && (
