@@ -27,6 +27,7 @@ export default function Leaves() {
       loadLeaves();
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to submit leave request.");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 

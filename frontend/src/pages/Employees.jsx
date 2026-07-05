@@ -43,9 +43,12 @@ export default function Employees() {
         const { password, ...updateData } = form;
         await api.put(`/employees/${editingId}`, updateData);
         setMessage("Employee updated successfully.");
+        setTimeout(() => setMessage(""), 3000);
+
       } else {
         await api.post("/employees", form);
         setMessage("Employee created successfully.");
+        setTimeout(() => setMessage(""), 3000);
       }
       resetForm();
       loadData();
@@ -98,17 +101,18 @@ export default function Employees() {
             />
           </div>
           <div className="form-row">
-            {!editingId && (
-              <input
-                name="password"
-                type="password"
-                placeholder="Password (min 6 chars)"
-                value={form.password}
-                onChange={handleChange}
-                required
-                minLength={6}
-              />
-            )}
+                <input
+                 name="password"
+                 type="password"
+                 placeholder={editingId ? "New password (leave blank to keep current)" : "Password (min 6 chars)"}
+                 value={form.password}
+                 onChange={handleChange}
+                 minLength={6}
+                 req
+                 uired={!editingId}
+                />
+              
+            
             <select name="role" value={form.role} onChange={handleChange}>
               <option value="crew">Crew Member</option>
               <option value="training_manager">Training Manager</option>
@@ -154,7 +158,6 @@ export default function Employees() {
             <th>Name</th>
             <th>Email</th>
             <th>Role</th>
-            <th>Level</th>
             <th>Status</th>
             {user.role === "store_manager" && <th>Actions</th>}
           </tr>
@@ -164,8 +167,11 @@ export default function Employees() {
             <tr key={emp._id}>
               <td>{emp.name}</td>
               <td>{emp.email}</td>
-              <td>{emp.role}</td>
-              <td>{emp.level || "-"}</td>
+              <td>
+                {emp.role === "store_manager" ? "Store Manager" :
+                emp.role === "training_manager" ? "Training Manager" :`Crew (${emp.level})`}
+              </td>
+              
               <td>{emp.isActive ? "Active" : "Inactive"}</td>
               {user.role === "store_manager" && (
                 <td>

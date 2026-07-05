@@ -46,9 +46,6 @@ export default function Login() {
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
-        <p>
-          Don't have an account? <Link to="/register">Register</Link>
-        </p>
       </form>
     </div>
   );
