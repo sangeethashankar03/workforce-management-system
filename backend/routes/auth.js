@@ -13,15 +13,6 @@ const generateToken = (userId) => {
   });
 };
 
-const sendTokenCookie = (res, token) => {
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 24 * 60 * 60 * 1000,
-  });
-};
-
 router.post(
   "/register",
   [
@@ -36,7 +27,7 @@ router.post(
     }
 
     try {
-      const { name, email, password, role, level,  phone } = req.body;
+      const { name, email, password, role, level, phone } = req.body;
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -51,15 +42,15 @@ router.post(
         email,
         password: hashedPassword,
         role: role || "crew",
-        level: role === "crew"? (level || "Level 1") : "N/A",
+        level: role === "crew" ? (level || "Level 1") : "N/A",
         phone: phone || "",
       });
 
       const token = generateToken(user._id);
-      sendTokenCookie(res, token);
 
       res.status(201).json({
-        user: { id: user._id, name: user.name, email: user.email, role: user.role, level: user.level},
+        token,
+        user: { id: user._id, name: user.name, email: user.email, role: user.role, level: user.level },
       });
     } catch (error) {
       res.status(500).json({ message: "Server error during registration", error: error.message });
@@ -97,9 +88,9 @@ router.post(
       }
 
       const token = generateToken(user._id);
-      sendTokenCookie(res, token);
 
       res.status(200).json({
+        token,
         user: { id: user._id, name: user.name, email: user.email, role: user.role, level: user.level },
       });
     } catch (error) {
@@ -113,11 +104,6 @@ router.get("/me", protect, async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
   res.status(200).json({ message: "Logged out successfully" });
 });
 
