@@ -9,13 +9,7 @@ router.get("/", protect, async (req, res) => {
     let filter = {};
     if (req.user.role === "crew") {
       filter = { employee: req.user._id }
-    } else if (req.user.role === "training_manager") {
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999);
-      filter = { clockIn: { $gte: startOfDay, $lte: endOfDay } };
-    }
+    } 
     const records = await Attendance.find(filter)
       .populate("employee", "name role level")
       .sort({ clockIn: -1 });
