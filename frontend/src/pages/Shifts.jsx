@@ -164,7 +164,7 @@ export default function Shifts() {
                           <div>
                             <div>{existingShift.startTime} - {existingShift.endTime}</div>
                             {canManage && (
-                              <button className="btn btn-small" onClick={() => handleDelete(existingShift._id)}>Edit</button>
+                              <button className="btn btn-small" onClick={() => handleDelete(existingShift._id)}>Remove</button>
                             )}
                           </div>
                         ) : canManage ? (
