@@ -1,9 +1,9 @@
 const express = require("express");
-const { protect } = require("../middleware/auth");
+const { protect, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/:countryCode/:year", protect, async (req, res) => {
+router.get("/:countryCode/:year", protect, authorize("store_manager"), async (req, res) => {
   try {
     const { countryCode, year } = req.params;
     const response = await fetch(
