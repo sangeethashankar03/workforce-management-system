@@ -31,7 +31,7 @@ The application is built using the MERN stack (MongoDB, Express.js, React, and N
 - Backend: Render Web Service
 - Database: MongoDB Atlas
 
-The backend is organised using Mongoose models, Express routes, middleware, and reusable utility functions to keep the code modular and maintainable.
+The backend is organised using Mongoose models, Express routes, and middleware to keep the code modular and maintainable..
 
 ---
 
@@ -59,7 +59,8 @@ Training Managers have all Crew permissions and can also:
 
 Store Managers have full access and can:
 
-- Manage employees
+- Create employee accounts
+- Manage employee records
 - Create and manage shift schedules
 - Review leave requests
 - Approve or reject leave requests
@@ -74,7 +75,7 @@ Store Managers have full access and can:
 
 | Method | Endpoint | Description | Access |
 |---------|----------|-------------|--------|
-| POST | `/login` | Login and receive JWT | Public |
+| POST | `/login` | Login and receive JWT | Employees |
 | GET | `/me` | Get logged-in user profile | Authenticated |
 | POST | `/logout` | Logout | Authenticated |
 
