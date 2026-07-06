@@ -192,7 +192,7 @@ workforce-management-system/
 ## Step 1: Clone the Repository
 
 ```bash
-git clone <your-github-repository-url>
+git clone https://github.com/sangeethashankar03/workforce-management-system.git
 cd workforce-management-system
 ```
 
