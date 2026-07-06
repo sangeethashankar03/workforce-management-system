@@ -26,13 +26,24 @@ export default function Dashboard() {
             ]);
 
 
+          const now = new Date();
+          const day = now.getDay();
+          const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+          const weekStart = new Date(now.getFullYear(), now.getMonth(), diff, 0, 0, 0, 0);
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekStart.getDate() + 6);
+          weekEnd.setHours(23, 59, 59, 999);
+
           setStats({
             employees: employeesRes.data.length,
             todayAttendance: attendanceRes.data.filter((a) => a.status === "active").length,
             pendingLeaves: leavesRes.data.filter((l) => l.status === "pending").length,
             approvedLeaves: leavesRes.data.filter((l) => l.status === "approved").length,
             rejectedLeaves: leavesRes.data.filter((l) => l.status === "rejected").length,
-            activeShifts: shiftsRes.data.length,
+            activeShifts: shiftsRes.data.filter((s) => {
+              const d = new Date(s.date);
+              return d >= weekStart && d <= weekEnd;
+            }).length,
           });
          } else if (user.role=="training_manager") {
             const [attendanceRes, leavesRes] = await Promise.all([
