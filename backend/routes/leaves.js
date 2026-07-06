@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get("/", protect, async (req, res) => {
   try {
-    const filter = req.user.role === "crew" ? { employee: req.user._id } : {};
+    const filter = (req.user.role === "crew" || req.user.role === "training_manager") ? { employee: req.user._id } : {};
     const leaves = await LeaveRequest.find(filter)
       .populate("employee", "name email")
       .populate("reviewedBy", "name")
