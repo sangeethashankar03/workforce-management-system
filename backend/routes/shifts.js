@@ -8,8 +8,7 @@ const router = express.Router();
 
 router.get("/", protect, async (req, res) => {
   try {
-    const filter = req.user.role === "crew" ? { employee: req.user._id } : {};
-    const shifts = await Shift.find(filter)
+    const shifts = await Shift.find({})
       .populate("employee", "name role level")
       .sort({ date: 1 });
     res.status(200).json(shifts);
