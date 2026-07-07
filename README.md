@@ -165,18 +165,45 @@ workforce-management-system/
 │
 ├── backend/
 │   ├── config/
+│   │   └── db.js
 │   ├── middleware/
+│   │   ├── auth.js
+│   │   └── sanitize.js
 │   ├── models/
+│   │   ├── Attendance.js
+│   │   ├── LeaveRequest.js
+│   │   ├── Shift.js
+│   │   └── User.js
 │   ├── routes/
+│   │   ├── attendance.js
+│   │   ├── auth.js
+│   │   ├── employees.js
+│   │   ├── holidays.js
+│   │   ├── leaves.js
+│   │   └── shifts.js
 │   └── server.js
 │
 └── frontend/
+    ├── public/
     └── src/
         ├── api/
+        │   └── axios.js
         ├── components/
+        │   ├── Navbar.jsx
+        │   └── ProtectedRoute.jsx
         ├── context/
+        │   └── AuthContext.jsx
         ├── pages/
-        └── App.jsx
+        │   ├── Attendance.jsx
+        │   ├── Dashboard.jsx
+        │   ├── Employees.jsx
+        │   ├── Holidays.jsx
+        │   ├── Leaves.jsx
+        │   ├── Login.jsx
+        │   └── Shifts.jsx
+        ├── App.css
+        ├── App.jsx
+        └── main.jsx
 ```
 
 ---
