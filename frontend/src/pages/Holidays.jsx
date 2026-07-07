@@ -25,7 +25,6 @@ export default function Holidays() {
   return (
     <div className="page">
       <h1>Public Holidays</h1>
-      <p className="subtitle">Fetched from the Nager.Date external API (https://date.nager.at)</p>
       <form className="card-form" onSubmit={fetchHolidays}>
         <h3>Search Public Holidays</h3>
         {message && <div className="info-message">{message}</div>}

@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/", protect, async (req, res) => {
   try {
-    const filter = {};
+    let filter = {};
     if (req.user.role === "crew") {
       filter = { employee: req.user._id }
     } else if (req.user.role === "training_manager") {

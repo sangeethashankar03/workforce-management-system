@@ -34,12 +34,26 @@ export default function Dashboard() {
             rejectedLeaves: leavesRes.data.filter((l) => l.status === "rejected").length,
             activeShifts: shiftsRes.data.length,
           });
-        } else if (user.role=="training_manager") {
-            const attendanceRes = await api.get("/attendance").catch(() => ({ data: [] }));
+         } else if (user.role=="training_manager") {
+            const [attendanceRes, leavesRes] = await Promise.all([
+              api.get("/attendance").catch(() => ({ data: [] })),
+              api.get("/leaves").catch(() => ({ data: [] })),
+            ]);
             setStats((s) => ({
-            ...s,
-            todayAttendance: attendanceRes.data.filter((a) => a.status === "active").length,
-          }));
+              ...s,
+              todayAttendance: attendanceRes.data.filter((a) => a.status === "active").length,
+              pendingLeaves: leavesRes.data.filter((l) => l.status === "pending").length,
+              approvedLeaves: leavesRes.data.filter((l) => l.status === "approved").length,
+              rejectedLeaves: leavesRes.data.filter((l) => l.status === "rejected").length,
+            }));
+        } else {
+            const leavesRes = await api.get("/leaves").catch(() => ({ data: [] }));
+            setStats((s) => ({
+              ...s,
+              pendingLeaves: leavesRes.data.filter((l) => l.status === "pending").length,
+              approvedLeaves: leavesRes.data.filter((l) => l.status === "approved").length,
+              rejectedLeaves: leavesRes.data.filter((l) => l.status === "rejected").length,
+            }));
         }
       } catch (err) {
         console.error("Failed to load dashboard stats", err);
